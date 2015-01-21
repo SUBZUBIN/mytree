@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Packaging Generator" default="N65567">
+<target name="N65567" description="httploadtest.jar">
+<mkdir dir="build"/>
+<jar destfile="build/Mytree.jar" manifest="bin/META-INF/MANIFEST.MF">
+<zipfileset dir="bin" includes="**/*.class" excludes="**/*.html,**/imp/**"/>
+</jar>
+</target>
+</project>
