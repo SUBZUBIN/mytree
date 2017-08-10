@@ -5,7 +5,7 @@ MYTREE
 ![enter image description here](https://i.stack.imgur.com/CKBZo.png)
 
 
-code sample
+And here some code! :+1:
 ```java
 		LevelTree tree = new MyArrayListTree(); 
                 tree.add("Level-1");
