@@ -6,7 +6,7 @@ import java.util.List;
  * 
  * This tree allows addition of at most n-children to any parent first elemt to
  * left then right.
- * @author SuBiN SoMaN
+ * @author subin.soman
  */
 public class MyTree<Node> extends MyArrayListTree<Node> {
 	private int	n;
