@@ -18,7 +18,7 @@ public class MyArrayListTree<Node> implements LevelTree<Node>, Cloneable {
 	 * If tree is empty, it adds a root. In case tree is not empty, it will
 	 * attempt to add parameter as a child of the root
 	 * 
-	 * @author SuBiN SoMaN
+	 * @author subin.soman
 	 */
 	@Override
 	public boolean add(Node e) {
