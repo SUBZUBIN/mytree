@@ -1,22 +1,30 @@
-package com.sixdee.subz;
+package com.sixdee.tree;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-public class MyArrayListTree<Node> implements LevelTree<Node>, Cloneable {
-	private ArrayList<Node>					nodeList		= new ArrayList<Node>();
-	private ArrayList<Integer>				parentList		= new ArrayList<Integer>();
-	private ArrayList<ArrayList<Integer>>	childrenList	= new ArrayList<ArrayList<Integer>>();
-	private int								size			= 0;
-	private int								depth			= 0;
-	private int								rootIndex		= -1;
+import org.redisson.api.RMapCache;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.sixdee.tree.exception.NodeNotFoundException;
+
+public class ArrayListTree<Node> implements Tree<Node>, Cloneable {
+
+	private ArrayList<Node> nodeList = new ArrayList<Node>();
+	private ArrayList<Integer> parentList = new ArrayList<Integer>();
+	private ArrayList<ArrayList<Integer>> childrenList = new ArrayList<ArrayList<Integer>>();
+	private int size = 0;
+	private int depth = 0;
+	private int rootIndex = -1;
 
 	/**
-	 * If tree is empty, it adds a root. In case tree is not empty, it will
-	 * attempt to add parameter as a child of the root
+	 * If tree is empty, it adds a root. In case tree is not empty, it will attempt
+	 * to add parameter as a child of the root
 	 * 
 	 * @author subin.soman
 	 */
@@ -68,7 +76,8 @@ public class MyArrayListTree<Node> implements LevelTree<Node>, Cloneable {
 				addRoot(child);
 				return true;
 			} else
-				throw new IllegalArgumentException("parent cannot be null except only for root element. Here already has a root.");
+				throw new IllegalArgumentException(
+						"parent cannot be null except only for root element. Here already has a root.");
 		} else
 			return false;
 	}
@@ -83,8 +92,8 @@ public class MyArrayListTree<Node> implements LevelTree<Node>, Cloneable {
 	}
 
 	/**
-	 * This method lets the sub-classes define the position at which new child
-	 * may be added
+	 * This method lets the sub-classes define the position at which new child may
+	 * be added
 	 * 
 	 * @param children
 	 * @param newChild
@@ -137,13 +146,12 @@ public class MyArrayListTree<Node> implements LevelTree<Node>, Cloneable {
 		rootIndex = -1;
 	}
 
-	// overided clonable interface
 	@SuppressWarnings("unchecked")
 	@Override
 	public Object clone() {
-		MyArrayListTree<Node> v = null;
+		ArrayListTree<Node> v = null;
 		try {
-			v = (MyArrayListTree<Node>) super.clone();
+			v = (ArrayListTree<Node>) super.clone();
 			v.nodeList = (ArrayList<Node>) nodeList.clone();
 			v.parentList = (ArrayList<Integer>) parentList.clone();
 			v.childrenList = new ArrayList<ArrayList<Integer>>();
@@ -223,13 +231,13 @@ public class MyArrayListTree<Node> implements LevelTree<Node>, Cloneable {
 	@Override
 	public boolean isAncestor(Node node, Node child) throws NodeNotFoundException {
 		checkNode(child);
-		return new LevelTreeHelper().isAncestor(this, node, child);
+		return new ArrayListTreeHelper().isAncestor(this, node, child);
 	}
 
 	@Override
 	public boolean isDescendant(Node parent, Node node) throws NodeNotFoundException {
 		checkNode(parent);
-		return new LevelTreeHelper().isDescendant(this, parent, node);
+		return new ArrayListTreeHelper().isDescendant(this, parent, node);
 	}
 
 	@Override
@@ -486,14 +494,63 @@ public class MyArrayListTree<Node> implements LevelTree<Node>, Cloneable {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean equals(Object o) {
-		if (o != null && o instanceof MyArrayListTree) {
+		if (o != null && o instanceof ArrayListTree) {
 			try {
-				return new LevelTreeHelper().isEqual((MyArrayListTree<Node>) o, this, ((MyArrayListTree<Node>) o).root(), root());
+				return new ArrayListTreeHelper().isEqual((ArrayListTree<Node>) o, this,
+						((ArrayListTree<Node>) o).root(), root());
 			} catch (NodeNotFoundException e) {
 				e.printStackTrace();
 				return false;
 			}
 		} else
 			return false;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <K, V> Collection<Node> getParents(List<Node> list, Node node, RMapCache<K, V> mapCache, K key, Gson gson)
+			throws NodeNotFoundException {
+		checkNode(node);
+		Tree<Node> tree = null;
+
+		try {
+
+			if (mapCache != null && gson != null && mapCache.containsKey(key)) {
+				tree = gson.fromJson(mapCache.get(key).toString(), ArrayListTree.class);
+
+				return tree.children(node);
+			}
+			tree = new ArrayListTree<Node>();
+			for (Node e : list) {
+				checkNode(e);
+				List<Node> path = getParents(e, new ArrayList<Node>());
+				path.add(e);
+
+				for (int i = 0; i < path.size(); i++) {
+					if (i == 0) {
+						tree.add(path.get(i));
+					} else {
+						tree.add(path.get(i - 1), path.get(i));
+					}
+
+				}
+			}
+			if (mapCache != null && gson != null)
+				mapCache.put(key, (V) gson.toJson(tree), 10, TimeUnit.MINUTES);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return tree.children(node);
+	}
+
+	public List<Node> getParents(Node e, ArrayList<Node> parentList) throws NodeNotFoundException {
+
+		Node p = parent(e);
+		if (p != null) {
+			parentList.add(0, p);
+			getParents(p, parentList);
+		}
+
+		return parentList;
 	}
 }
