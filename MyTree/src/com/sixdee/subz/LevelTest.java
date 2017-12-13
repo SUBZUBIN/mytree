@@ -3,14 +3,18 @@ package com.sixdee.subz;
 
 import java.util.Iterator;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 /**
- * @author SuBiN SoMaN
+ * @author subin.soman
  * 
  */
 public class LevelTest  {
 	@SuppressWarnings("unused")
 	public static void main(String[] args) throws NodeNotFoundException {
 		LevelTree<String> tree = new MyArrayListTree<String>();
+		Gson gson=new GsonBuilder().setPrettyPrinting().create();
 		tree.add("Level-1");
 		tree.add("Level-1", "Level-11");
 		tree.add("Level-1", "Level-12");
@@ -32,7 +36,8 @@ public class LevelTest  {
 		 * while (iterator.hasNext()) { System.out.print(iterator.next() + " ");
 		 * }
 		 */
-		System.out.println(tree.levelOrderTraversal());
+		System.out.println(tree);
+		//System.out.println(tree.levelOrderTraversal());
 		/*System.out.println(tree.preOrderTraversal());
 		System.out.println(tree.postOrderTraversal());
 		System.out.println(tree.inorderOrderTraversal());
@@ -41,16 +46,16 @@ public class LevelTest  {
 		System.out.println(tree.removeAll(list));
 		System.out.println(tree.levelOrderTraversal());
 		System.out.println("a" + tree.parent("Level-112"));*/
-		System.out.println("subin" + tree.parent("Level-1"));
-		System.out.println(tree.isAncestor("Level-1", "Level-1221"));
-		System.out.println("siblings"+tree.siblings("Level-112"));
-		System.out.println(tree.children("Level-12"));
-		System.out.println("depth:  "+tree.depth());
-		System.out.println(tree.leaves());
-		for(int i=0;i<tree.depth();i++){
-			if(i==0){
+		//System.out.println("subin" + tree.parent("Level-1"));
+		//System.out.println(tree.isAncestor("Level-1", "Level-1221"));
+		//System.out.println("siblings"+tree.siblings("Level-112"));
+		//System.out.println(tree.children("Level-12"));
+		//System.out.println("depth:  "+tree.depth());
+		//System.out.println(tree.leaves());
+		//for(int i=0;i<tree.depth();i++){
+			//if(i==0){
 				
-			}
-		}
+			//}
+		//}
 	}
 }
